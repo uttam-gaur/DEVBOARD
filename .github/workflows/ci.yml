@@ -1,44 +1,45 @@
-# Goal - I have to Lint, Build, Test the code for Frontend & Backend
-# then Push the images to DockerHub 
 name: CI
+
 on:
   push:
     branches: [advance]
+
 jobs:
   frontend:
     runs-on: ubuntu-latest
+
     steps:
+      - name: Checkout the code
+        uses: actions/checkout@v4
 
-      - name: checkout the code
-        uses: actions/checkout@v7
-
-      - name: setup node js
-        uses: actions/setup-node@v6
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
         with:
           node-version: '20'
           cache: npm
           cache-dependency-path: frontend/package-lock.json
 
-      - name: install npm package
+      - name: Install npm packages
         run: npm install
         working-directory: frontend
 
-      - name: run the linter 
+      - name: Run linter
         run: npm run lint
         working-directory: frontend
 
-      - name: Run the test 
+      - name: Run tests
         run: npm run test
         working-directory: frontend
 
-      - name: docker setup 
+      - name: Login to Docker Hub
         uses: docker/login-action@v3
-          with:
-            username: ${{ vars.DOCKERHUB_USERNAME}}
-            password: ${{ secrets.DOCKERHUB_PASSWORD}}
-      - name: buil and push the image 
-        uses: docker/build-push-action@v7
+        with:
+          username: ${{ vars.DOCKERHUB_USERNAME }}
+          password: ${{ secrets.DOCKERHUB_PASSWORD }}
+
+      - name: Build and Push Image
+        uses: docker/build-push-action@v6
         with:
           context: ./frontend
           push: true
-            tag: ${{ vars.DOCKERHUB_USERNAME }}/DEVBOARD-frontend:lattesst
+          tags: ${{ vars.DOCKERHUB_USERNAME }}/devboard-frontend:latest
