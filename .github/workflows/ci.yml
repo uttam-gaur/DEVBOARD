@@ -8,18 +8,37 @@ jobs:
   frontend:
     runs-on: ubuntu-latest
     steps:
+
       - name: checkout the code
         uses: actions/checkout@v7
+
       - name: setup node js
         uses: actions/setup-node@v6
         with:
           node-version: '20'
           cache: npm
           cache-dependency-path: frontend/package-lock.json
+
       - name: install npm package
         run: npm install
         working-directory: frontend
+
       - name: run the linter 
         run: npm run lint
         working-directory: frontend
-      
+
+      - name: Run the test 
+        run: npm run test
+        working-directory: frontend
+
+      - name: docker setup 
+        uses: actions/login-actions@v4
+          with:
+            username: ${{ vars.DOCKERHUB_USERNAME}}
+            password: ${{ secrets.DOCKERHUB_PASSWORD}}
+      - name: buil and push the image 
+        uses: docker/build-push-action@v7
+        with:
+          context: ./frontend
+          push: true
+            tag: ${{ vars.DOCKERHUB_USERNAME }}/DEVBOARD-frontend:latest
