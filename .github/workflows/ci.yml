@@ -1,7 +1,8 @@
 name: CI
 
 on:
-  workflow-dispatch:
+  push:
+    branches: [advance]
 
 jobs:
   frontend:
