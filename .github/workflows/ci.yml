@@ -2,8 +2,12 @@ name: CI
 
 on:
   push:
+<<<<<<< HEAD
     branches: [master]
 
+=======
+    branches: [advance]
+>>>>>>> e4850ba572eb4300c0052c26ea337cf51f578897
 jobs:
   frontend:
     runs-on: ubuntu-latest
