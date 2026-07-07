@@ -7,7 +7,8 @@ spec:
   selector:
     app: devboard-frontend
   ports:
-    - protocol: TCP
-      port: 30080
+    - port: 8081
+      protocol: TCP
       targetPort: 4173
+      NodePort: 30080
   type: NodePort
