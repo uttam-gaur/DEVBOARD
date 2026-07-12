@@ -1,32 +1,32 @@
 apiVersion: apps/v1
 kind: Deployment
 metadata:
-  name: devboard-backend-deployment
+  name: postgres-deployment
   namespace: devboard
   labels:
-    app: devboard-backend
+    app: devboard-postgres
 spec:
-  replicas: 2
+  replicas: 1
   selector:
     matchLabels:
-      app: devboard-backend
+      app: devboard-postgres
   template:
     metadata:
       labels:
-        app: devboard-backend
+        app: devboard-postgres
     spec:
       containers:
-      - name: devboard-backend
-        image:  trainwithshubham/devboard-backend:latest
+      - name: postgres
+        image: postgres:16-alpine
         ports:
-        - containerPort: 8080
+          - containerPort: 5432
         env:
           - name: POSTGRES_USER
             valueFrom:
               configMapKeyRef:
                 name: devboard-configmap
                 key: POSTGRES_USER
-
+          
           - name: POSTGRES_PASSWORD
             valueFrom:
               secretKeyRef:
@@ -38,15 +38,19 @@ spec:
               secretKeyRef:
                 name: devboard-secrets
                 key: POSTGRES_DB
-
-          - name: POSTGRES_URL
-            value: postgres://devboard:devboard@postgres:5432/devboard?sslmode=disable
-          - name: PORT
-            value: "8080"
-        livenessProbe:
-          httpGet:
-            path: /health
-            port: 8080
+        volumeMounts:
+          - name: init
+            mountPath: /docker-entrypoint-initdb.d
+            readOnly: true
+        readinessProbe:
+          exec:
+            command: ["sh", "-c", "pg_isready -U $(POSTGRES_USER) -d $(POSTGRES_DB)"]
           initialDelaySeconds: 15
           periodSeconds: 10
-
+        
+      volumes:
+        - name: init
+          configMap:
+            name: postgres-init 
+        
+        
